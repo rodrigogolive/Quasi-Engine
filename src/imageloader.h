@@ -43,7 +43,7 @@ public:
     void setPercentLoading(const qreal &percent);
     qreal percentLoading() const;
 
-    QPixmap generatePartialPixmap(const QPoint &startPoint, const QSize &size);
+    QPixmap load(const QPoint &startPoint, const QSize &size);
     //void generateFirstImage(const QPoint &pos = QPoint(0, 0));// TODO maybe this function will be another one
 
 protected:
@@ -53,6 +53,8 @@ protected:
     QString m_source;
     int m_imageWidth;
     int m_imageHeight;
+
+    int m_type; // fixed on horizontal/vertical or free move
 };
 
 #endif /* _IMAGELOADER */

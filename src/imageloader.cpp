@@ -234,13 +234,30 @@ qreal ImageLoader::percentLoading() const
 }*/
 ///
 
-QPixmap ImageLoader::generatePartialPixmap(const QPoint &startPoint, const QSize &size)
+QPixmap ImageLoader::load(const QPoint &startPoint, const QSize &size)
 {
     if (!m_imageReader.canRead())
         m_imageReader.setFileName(m_source); // XXX me doesn't like this
 
-    QRect r = QRect(startPoint.x(), startPoint.y(), size.width(), size.height());
-    m_imageReader.setClipRect(r);
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+
+    if (m_type == 0) { // hFixed
+        width = size.width() * m_percentLoading;
+        x = startPoint.x() - (startPoint.x() * m_percentLoading);
+    } else if (m_type == 1) { // vFixed
+        height = size.height() * m_percentLoading;
+        y = startPoint.y() - (startPoint.y() * m_percentLoading);
+    } else { // freedom \o/
+        width = size.width() * m_percentLoading;
+        height = size.height() * m_percentLoading;
+        x = startPoint.x() - (startPoint.x() * m_percentLoading);
+        y = startPoint.y() - (startPoint.y() * m_percentLoading);
+    }
+
+    m_imageReader.setClipRect(QRect(x, y, width, height));
     //m_imageReader.setClipRect(QRect(startPoint,
     //                            0,
     //                            size,
