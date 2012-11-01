@@ -39,7 +39,7 @@ ImageLoader::~ImageLoader()
  */
 void ImageLoader::setSource(const QString &source)
 {
-    if (m_source == source) {
+    if (m_source != source) {
         m_source = source;
 
         m_imageReader.setFileName(m_source);
@@ -234,28 +234,39 @@ qreal ImageLoader::percentLoading() const
 }*/
 ///
 
+#include <QDebug>
 QPixmap ImageLoader::load(const QPoint &startPoint, const QSize &size)
 {
     if (!m_imageReader.canRead())
         m_imageReader.setFileName(m_source); // XXX me doesn't like this
 
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
+    m_type = 0;// TODO enum?
+    int x = startPoint.x();
+    int y = startPoint.y();
+    int width = size.width();
+    int height = size.height();
 
     if (m_type == 0) { // hFixed
-        width = size.width() * m_percentLoading;
-        x = startPoint.x() - (startPoint.x() * m_percentLoading);
+        width += width * m_percentLoading;
+        x -= x * m_percentLoading;
     } else if (m_type == 1) { // vFixed
-        height = size.height() * m_percentLoading;
-        y = startPoint.y() - (startPoint.y() * m_percentLoading);
+        height += height * m_percentLoading;
+        y -= y * m_percentLoading;
     } else { // freedom \o/
-        width = size.width() * m_percentLoading;
-        height = size.height() * m_percentLoading;
-        x = startPoint.x() - (startPoint.x() * m_percentLoading);
-        y = startPoint.y() - (startPoint.y() * m_percentLoading);
+        width += width * m_percentLoading;
+        height += height * m_percentLoading;
+        x -= x * m_percentLoading;
+        y -= y * m_percentLoading;
     }
+
+    // XXX check for boundaries; no mirror nor infinite (loop) mode for now
+    if (width > m_imageWidth)
+        width = m_imageWidth;
+
+    if (height > m_imageHeight)
+        height = m_imageHeight;
+
+    qDebug() << x << y << width << height;///
 
     m_imageReader.setClipRect(QRect(x, y, width, height));
     //m_imageReader.setClipRect(QRect(startPoint,

@@ -293,9 +293,14 @@ void ImageLayer::updateTiles()
     drawPixmap();
 }
 
+#include "imageloader.h"
 QPixmap ImageLayer::generatePartialPixmap(int startPoint, int size)
 {
-    QPixmap temp(m_tileWidth * size, boundingRect().height());
+    ImageLoader *il = new ImageLoader();
+    il->setSource(m_source);
+    QPixmap temp = il->load(QPoint(0, 0), QSize(200, 200));
+    temp.save(QString("/tmp/BLA/image_%1.png").arg(startPoint));///
+    /*QPixmap temp(m_tileWidth * size, boundingRect().height());
 
     QPainter p(&temp);
         int i, j;
@@ -314,7 +319,7 @@ QPixmap ImageLayer::generatePartialPixmap(int startPoint, int size)
                 }
             }
         }
-    p.end();
+    p.end();*/
 
     return temp;
 }
