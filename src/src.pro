@@ -51,7 +51,8 @@ HEADERS += quasideclarativeitem.h \
            circle.h \
            line.h \
            fixture.h \
-           material.h
+           material.h \
+           imageloader.h
 
 SOURCES += entity.cpp \
            scene.cpp \
@@ -83,7 +84,8 @@ SOURCES += entity.cpp \
            polygon.cpp \
            polyline.cpp \
            fixture.cpp \
-           material.cpp
+           material.cpp \
+           imageloader.cpp
 
 QMAKE_POST_LINK = $$QMAKE_COPY $$PWD/qmldir $$OUT_PWD/imports/QuasiGame
 
