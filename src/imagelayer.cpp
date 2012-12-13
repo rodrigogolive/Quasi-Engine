@@ -53,6 +53,9 @@ void ImageLayer::setSource(const QString &source)
         return;
 
     m_source = source;
+    m_imageLoader = new ImageLoader();
+    m_imageLoader->setSource(m_source);
+
 
     emit sourceChanged();
 }
@@ -293,12 +296,12 @@ void ImageLayer::updateTiles()
     drawPixmap();
 }
 
-#include "imageloader.h"
 QPixmap ImageLayer::generatePartialPixmap(int startPoint, int size)
 {
-    ImageLoader *il = new ImageLoader();
-    il->setSource(m_source);
-    QPixmap temp = il->load(QPoint(0, 0), QSize(200, 200));
+    if (!m_imageLoader)
+        return QPixmap();
+
+    QPixmap temp = m_imageLoader->load(QPoint(startPoint, 0), QSize(boundingRect().width(), boundingRect().height()));
     temp.save(QString("/tmp/BLA/image_%1.png").arg(startPoint));///
     /*QPixmap temp(m_tileWidth * size, boundingRect().height());
 
@@ -337,20 +340,22 @@ void ImageLayer::drawPixmap()
 
     QPainter p(m_currentImage);
         int xPoint = 0;
-        for (int i = 0; i < m_offsets[m_columnOffset].size(); i++) {
-            Offsets offset = m_offsets[m_columnOffset].at(i);
+        //for (int i = 0; i < m_offsets[m_columnOffset].size(); i++) {
+            //Offsets offset = m_offsets[m_columnOffset].at(i);
 
-            QPixmap pixmap = generatePartialPixmap(offset.point(), offset.size());
+            QPixmap pixmap = generatePartialPixmap(m_columnOffset, 0);
+            //QPixmap pixmap = generatePartialPixmap(offset.point(), offset.size());
             p.drawPixmap(xPoint, 0, pixmap);
 
             xPoint += pixmap.width();
-            m_latestPoint = offset.point();
-        }
+            //m_latestPoint = offset.point();
+            m_columnOffset += pixmap.width();
+        //}
 
-        if (m_horizontalStep > 0)
+        /*if (m_horizontalStep > 0)
             m_columnOffset = (m_columnOffset - 1 < 0) ? m_offsets.size() - 1 : m_columnOffset - 1;
         else
-            m_columnOffset = (m_columnOffset + 1) % m_offsets.size();
+            m_columnOffset = (m_columnOffset + 1) % m_offsets.size();*/
     p.end();
 }
 
@@ -371,13 +376,22 @@ void ImageLayer::updateHorizontalStep()
 {
     m_currentHorizontalStep += m_horizontalStep;
 
-    if (m_currentHorizontalStep <= -width()) {
+    if (m_currentHorizontalStep <= -(width() + (width() * m_imageLoader->percentLoading()))) {
+        qDebug() << m_currentHorizontalStep;
         drawPixmap();
         m_currentHorizontalStep = 0;
     } else if (m_currentHorizontalStep >= 0) {
+        qDebug() << m_currentHorizontalStep;
         drawPixmap();
         m_currentHorizontalStep = -width();
     }
+    //if (m_currentHorizontalStep <= -width()) {
+    //    drawPixmap();
+    //    m_currentHorizontalStep = 0;
+    //} else if (m_currentHorizontalStep >= 0) {
+    //    drawPixmap();
+    //    m_currentHorizontalStep = -width();
+    //}
 }
 
 void ImageLayer::onHorizontalDirectionChanged()

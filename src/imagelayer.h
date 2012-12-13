@@ -23,6 +23,7 @@
 #define _IMAGELAYER_H_
 
 #include "layer.h"
+#include "imageloader.h"
 
 #include <QtCore/QtGlobal>
 #include <QtGui/QPixmap>
@@ -123,6 +124,8 @@ private:
     qreal m_currentHorizontalStep;
 
     bool m_initialized;
+
+    ImageLoader *m_imageLoader;
 };
 
 #endif /* _IMAGELAYER_H_ */
